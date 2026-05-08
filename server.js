@@ -11,7 +11,6 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-
 app.use(express.static("public"));
 
 async function connectWhatsApp(number) {
@@ -27,7 +26,13 @@ async function connectWhatsApp(number) {
   );
 
   const sock = makeWASocket({
-    auth: state
+    auth: state,
+
+    browser: [
+      "Ubuntu",
+      "Chrome",
+      "20.0.04"
+    ]
   });
 
   sock.ev.on(
@@ -36,7 +41,7 @@ async function connectWhatsApp(number) {
   );
 
   await new Promise((resolve) =>
-    setTimeout(resolve, 4000)
+    setTimeout(resolve, 8000)
   );
 
   const code =
