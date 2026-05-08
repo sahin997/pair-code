@@ -2,8 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 
-import {
-  makeWASocket,
+import makeWASocket, {
   useMultiFileAuthState,
   DisconnectReason
 } from "@whiskeysockets/baileys";
@@ -33,7 +32,9 @@ async function connectWhatsApp(number) {
       "Ubuntu",
       "Chrome",
       "20.0.04"
-    ]
+    ],
+
+    printQRInTerminal: false
   });
 
   sock.ev.on(
@@ -76,6 +77,11 @@ async function connectWhatsApp(number) {
           const reason =
             lastDisconnect?.error
               ?.output?.statusCode;
+
+          console.log(
+            "Connection Closed:",
+            reason
+          );
 
           if (
             reason !==
