@@ -4,8 +4,7 @@ import bodyParser from "body-parser";
 
 import {
   makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason
+  useMultiFileAuthState
 } from "@whiskeysockets/baileys";
 
 const app = express();
@@ -22,19 +21,60 @@ async function connectWhatsApp(number) {
     );
 
   const sock = makeWASocket({
-    auth: state,
-    printQRInTerminal: false
+    auth: state
   });
 
   sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", async (update) => {
+  await new Promise(resolve =>
+    setTimeout(resolve, 5000)
+  );
 
-    const { connection, lastDisconnect } = update;
+  const code =
+    await sock.requestPairingCode(number);
 
-    if (connection === "close") {
+  return code;
+}
 
-      const reason =
+app.post("/pair", async (req, res) => {
+
+  try {
+
+    let { number } = req.body;
+
+    number = number.replace(/[^0-9]/g, "");
+
+    const code =
+      await connectWhatsApp(number);
+
+    res.json({
+      success: true,
+      code
+    });
+
+  } catch (e) {
+
+    console.log(e);
+
+    res.json({
+      success: false,
+      error: "Connection Closed"
+    });
+
+  }
+
+});
+
+const PORT =
+  process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+
+  console.log(
+    `Server Running On ${PORT}`
+  );
+
+});      const reason =
         lastDisconnect?.error?.output?.statusCode;
 
       console.log("Connection Closed:", reason);
